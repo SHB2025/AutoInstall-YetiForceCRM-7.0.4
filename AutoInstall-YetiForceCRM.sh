@@ -193,6 +193,7 @@ update_config "upload_max_filesize = 100M" "$PHPPATH"
 update_config "user_ini.filename = " "$PHPPATH"
 update_config 'variables_order = "GPCS"' "$PHPPATH"
 update_config 'zlib.output_compression = "Off"' "$PHPPATH"
+update_config "open_basedir = /var/www/html/yeti" "$PHPPATH"
 PHPPATH=/etc/php/8.2/cli/php.ini
 update_config 'allow_url_fopen = "On"' "$PHPPATH"
 update_config 'allow_url_include = "Off"' "$PHPPATH"
@@ -246,6 +247,7 @@ update_config "upload_max_filesize = 100M" "$PHPPATH"
 update_config "user_ini.filename = " "$PHPPATH"
 update_config 'variables_order = "GPCS"' "$PHPPATH"
 update_config 'zlib.output_compression = "Off"' "$PHPPATH"
+update_config "open_basedir = /var/www/html/yeti" "$PHPPATH"
 touch /var/log/php_error.log
 chmod 777 /var/log/php_error.log
 
