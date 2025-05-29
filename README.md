@@ -7,15 +7,16 @@ Ovaj repozitorij sadrži dvije skripte koje omogućavaju **potpunu i sigurnu ins
 
 ---
 
-## 📥 Preuzimanje i pokretanje
-
+## 📥 Preuzimanje
 
     sudo wget https://raw.githubusercontent.com/SHB2025/AutoInstall-YetiForceCRM-7.0.4/refs/heads/main/AutoInstall-YetiForceCRM.sh
     sudo wget https://raw.githubusercontent.com/SHB2025/AutoInstall-YetiForceCRM-7.0.4/refs/heads/main/yetiforce_db_setup.sh
 ---
+# Pokretanje YetiForce CRM 7.0.4 instalacijske skripte
     sudo chmod +x AutoInstall-YetiForceCRM.sh
     sudo ./AutoInstall-YetiForceCRM.sh
 ---
+# Pokretanje YetiForce SQL Setup skripte
     sudo chmod +x yetiforce_db_setup.sh
     sudo ./yetiforce_db_setup.sh
 
