@@ -12,10 +12,10 @@ Ovaj repozitorij sadrži dvije skripte koje omogućavaju **potpunu i sigurnu ins
 
     wget https://github.com/vaš-repo/AutoInstall-YetiForceCRM.sh
     wget https://github.com/vaš-repo/yetiforce_db_setup.sh
-
+---
     sudo chmod +x AutoInstall-YetiForceCRM.sh
     sudo ./AutoInstall-YetiForceCRM.sh
-
+---
     sudo chmod +x yetiforce_db_setup.sh
     sudo ./yetiforce_db_setup.sh
 
