@@ -79,9 +79,10 @@ if [[ "$NEW_PASS" != "$CONFIRM_PASS" ]]; then
 fi
 
 # Kreiranje baze i korisnika
-mysql -u root -e "CREATE DATABASE \`${NEW_DB}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -e "CREATE DATABASE \`${NEW_DB}\`;"
 mysql -u root -e "CREATE USER '${NEW_USER}'@'localhost' IDENTIFIED BY '${NEW_PASS}';"
-mysql -u root -e "GRANT ALL PRIVILEGES ON \`${NEW_DB}\`.* TO '${NEW_USER}'@'localhost';"
+mysql -u root -e "GRANT ALL PRIVILEGES ON \`${NEW_DB}\`.* TO '${NEW_USER}'@'localhost' WITH GRANT OPTION;"
 mysql -u root -e "FLUSH PRIVILEGES;"
+mysql -u root -e "ALTER DATABASE \`${NEW_DB}\` CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
 
 printf "${bldgrn}$success${txtrst}\n" "$NEW_DB" "$NEW_USER"
