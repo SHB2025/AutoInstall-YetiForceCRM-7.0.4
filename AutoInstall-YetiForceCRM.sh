@@ -114,7 +114,45 @@ apt-get update
 apt-get --force-yes --yes install mysql-server mysql-client
 
 clear
-echoyellow "CONFIGURING MYSQL / KONFIGURIRANJE MYSQL"
+echoyellow "SETTING MYSQL CONFIGURATION FOR YETIFORCE / PODEŠAVANJE MYSQL KONFIGURACIJE ZA YETIFORCE."
+
+MYSQL_CNF="/etc/mysql/mysql.conf.d/mysqld.cnf"
+if [ ! -f "$MYSQL_CNF" ]; then
+  MYSQL_CNF="/etc/mysql/mariadb.conf.d/50-server.cnf"
+fi
+
+# A true backup / Pravi backup
+cp "$MYSQL_CNF" "${MYSQL_CNF}.bak"
+
+# Removes the existing sql_mode if any / Uklanja postojeće sql_mode ako postoji
+sed -i '/^\s*sql-mode\s*=.*/d' "$MYSQL_CNF"
+
+# Adds/modifies recommended settings / Dodaje/izmjenjuje preporučene postavke
+grep -q "^\[mysqld\]" "$MYSQL_CNF" || echo "[mysqld]" >> "$MYSQL_CNF"
+
+sed -i '/^\[mysqld\]/a \
+sql_mode= ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION\
+\ncharacter-set-server = utf8\
+\ncollation-server = utf8_unicode_ci\
+\ndefault-storage-engine = InnoDB\
+\ninnodb_file_per_table = 1\
+\nmax_allowed_packet = 128M\
+\ntmp_table_size = 64M\
+\nmax_heap_table_size = 64M\
+\nwait_timeout = 600\
+\ninteractive_timeout = 600\
+\ntable_definition_cache = 4400\
+\ninnodb_lock_wait_timeout = 600\
+\nconnect_timeout = 60' "$MYSQL_CNF"
+
+# Restart MySQL to apply the changes / Restart MySQL da se promjene primjene
+sudo systemctl restart mysql
+
+clear
+echoyellow "MYSQL SET UP FOR YETIFORCE / MYSQL PODEŠEN ZA YETIFORCE."
+
+clear
+echoyellow "CREATION OF MYSQL BASE AND USERS / KREIRANJE MYSQL BAZE I KORISNIKA"
 sleep 2
 mysql -u root -e "CREATE USER 'yeti'@'localhost' IDENTIFIED BY 'yeti';"
 mysql -u root -e "GRANT ALL PRIVILEGES ON yetiforce.* TO 'yeti'@'localhost' WITH GRANT OPTION;"
@@ -251,25 +289,6 @@ update_config "open_basedir = /var/www/html/yeti" "$PHPPATH"
 touch /var/log/php_error.log
 chmod 777 /var/log/php_error.log
 
-
-MYSQLPATH=/etc/mysql/mysql.conf.d/mysqld.cnf
-
-# Safe SQL mode update inside existing [mysqld] section or append it / Ažuriranje sigurnog SQL načina rada unutar postojećeg [mysqld] odjeljka ili ga dodajte
-if grep -q "^\[mysqld\]" "$MYSQLPATH"; then
-    if grep -q "^sql-mode=" "$MYSQLPATH"; then
-        sed -i 's/^sql-mode=.*/sql-mode=""/' "$MYSQLPATH"
-    else
-        sed -i '/^\[mysqld\]/a sql-mode=""' "$MYSQLPATH"
-    fi
-else
-    echo -e "
-[mysqld]
-sql-mode=\"\"" >> "$MYSQLPATH"
-fi
-
-update_config "table_definition_cache = 4400" "$MYSQLPATH"
-update_config "innodb_lock_wait_timeout = 600" "$MYSQLPATH"
-
 clear
 echoyellow "DOWNLOADING YETIFORCE / PREUZIMANJE YETIFORCE"
 sleep 2
@@ -397,8 +416,8 @@ echogreen "Restart Apache to apply all changes / Ponovo pokrenite Apache da prim
 systemctl restart apache2
 
 clear
-echogreen "INSTALLATION COMPLETE, YETIFORCE INSTALLED, ACCESS THROUGH YOUR WEB BROWSER AT https://$(ip addr show | grep 'inet ' | grep brd | tr -s ' ' '|' | cut -d '|' -f 3 | cut -d '/' -f 1 | head -n 1) A MYSQL DATABASE HAS ALREADY BEEN CREATED ON HOST:localhost PORT:3306 NAME:yeti USER:yeti PASSWORD:yeti"
-echogreen "INSTALACIJA KOMPLETNA, YETIFORCE INSTALIRAN, PRISTUP KROZ VAŠ WEB Browser NA https://$(ip addr show | grep 'inet ' | grep brd | tr -s ' ' '|' | cut -d '|' -f 3 | cut -d '/' -f 1 | head -n 1) | BAZA PODATAKA JE VEĆ KREIRANA NA HOST:localhost PORT:3306 IME:yeti KORISNIK:yeti LOZINKA:yeti"
+echogreen "INSTALLATION COMPLETE, YETIFORCE INSTALLED, ACCESS THROUGH YOUR WEB BROWSER AT https://$(ip addr show | grep 'inet ' | grep brd | tr -s ' ' '|' | cut -d '|' -f 3 | cut -d '/' -f 1 | head -n 1) A MYSQL DATABASE HAS ALREADY BEEN CREATED ON HOST:localhost PORT:3306 NAME:yetiforce USER:yeti PASSWORD:yeti"
+echogreen "INSTALACIJA KOMPLETNA, YETIFORCE INSTALIRAN, PRISTUP KROZ VAŠ WEB Browser NA https://$(ip addr show | grep 'inet ' | grep brd | tr -s ' ' '|' | cut -d '|' -f 3 | cut -d '/' -f 1 | head -n 1) | BAZA PODATAKA JE VEĆ KREIRANA NA HOST:localhost PORT:3306 IME:yetiforce KORISNIK:yeti LOZINKA:yeti"
 
 echoyellow "=== Bosanski ==="
 echogreen "NAPOMENA: Radi povećanja sigurnosti, preporučuje se kreiranje SQL baze i SQL korisnika sa nestandardnim nazivom i lozinkom."
