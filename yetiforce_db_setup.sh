@@ -1,88 +1,89 @@
 #!/bin/bash
 
-# Boje za izlaz
-txtbld=$(tput bold)
-bldred=${txtbld}$(tput setaf 1)
-bldgrn=${txtbld}$(tput setaf 2)
-bldblu=${txtbld}$(tput setaf 4)
-txtrst=$(tput sgr0)
+set -e
 
-# Odabir jezika
-echo "Select language / Odaberite jezik:"
-echo "1) English"
-echo "2) Bosanski"
-read -p "Choice / Izbor [1-2]: " lang
+txtred='\033[1;31m'
+txtgrn='\033[1;32m'
+txtblu='\033[1;34m'
+txtnc='\033[0m'
 
-if [[ "$lang" == "2" ]]; then
-  # Bosanski
-  title="📦 YetiForce DB Postavka za verziju 7.0.4"
-  no_mysql="❌ MySQL server nije dostupan. Provjerite pristup."
-  confirm_remove="🗑️  Da li želite ukloniti defaultnu bazu 'yetiforce' i korisnika 'yeti'? (da/ne): "
-  removed_success="✅ Defaultna baza i korisnik su uklonjeni. Backup spremljen."
-  enter_db="📛 Unesite naziv nove baze: "
-  invalid_db="❌ Naziv baze može sadržavati samo slova, brojeve i donje crte."
-  enter_user="👤 Unesite ime novog korisnika: "
-  enter_pass="🔑 Unesite lozinku za korisnika: "
-  confirm_pass="🔁 Potvrdite lozinku: "
-  mismatch="❌ Lozinke se ne podudaraju."
-  success="✅ Baza '%s' i korisnik '%s' uspješno kreirani."
+# Funkcija za validaciju lozinke
+validate_password() {
+    local passwd="$1"
+    if [[ "$passwd" =~ [\$\'\"\\] ]]; then
+        return 1
+    fi
+    return 0
+}
+
+# Provjera postoji li baza yetiforce
+DB_TO_DROP="yetiforce"
+USER_TO_DROP="yeti"
+FOUND_DB=$(mysql -N -e "SHOW DATABASES LIKE '$DB_TO_DROP';")
+FOUND_USER=$(mysql -N -e "SELECT user FROM mysql.user WHERE user='$USER_TO_DROP';")
+
+if [[ -n "$FOUND_DB" || -n "$FOUND_USER" ]]; then
+    echo -e "${txtblu}Pronađena je standardna YetiForce baza i/ili korisnik.${txtnc}"
+    read -p "Želiš li obrisati bazu '$DB_TO_DROP' i korisnika '$USER_TO_DROP'? (y/n): " CONFIRM
+    if [[ "$CONFIRM" == "y" ]]; then
+        if [[ -n "$FOUND_DB" ]]; then
+            mysql -e "DROP DATABASE \`$DB_TO_DROP\`;"
+            echo -e "${txtgrn}Baza $DB_TO_DROP obrisana.${txtnc}"
+        fi
+        if [[ -n "$FOUND_USER" ]]; then
+            mysql -e "DROP USER IF EXISTS '$USER_TO_DROP'@'localhost';"
+            echo -e "${txtgrn}Korisnik $USER_TO_DROP obrisan.${txtnc}"
+        fi
+    else
+        echo "Brisanje preskočeno."
+    fi
 else
-  # English
-  title="📦 YetiForce DB Setup for version 7.0.4"
-  no_mysql="❌ MySQL server is not available. Check access."
-  confirm_remove="🗑️  Do you want to remove the default database 'yetiforce' and user 'yeti'? (yes/no): "
-  removed_success="✅ Default database and user removed. Backup created."
-  enter_db="📛 Enter new database name: "
-  invalid_db="❌ Database name may only contain letters, numbers, and underscores."
-  enter_user="👤 Enter new username: "
-  enter_pass="🔑 Enter password for user: "
-  confirm_pass="🔁 Confirm password: "
-  mismatch="❌ Passwords do not match."
-  success="✅ Database '%s' and user '%s' created successfully."
+    echo -e "${txtblu}Baza 'yetiforce' ili korisnik 'yeti' nisu pronađeni.${txtnc}"
+    read -p "Želiš li unijeti naziv baze i korisnika za ručno brisanje? (y/n): " MANUAL
+    if [[ "$MANUAL" == "y" ]]; then
+        read -p "Naziv baze za brisanje: " DB_TO_DROP
+        read -p "Naziv korisnika za brisanje: " USER_TO_DROP
+        if [[ -n "$DB_TO_DROP" ]]; then
+            FOUND_DB=$(mysql -N -e "SHOW DATABASES LIKE '$DB_TO_DROP';")
+            if [[ -n "$FOUND_DB" ]]; then
+                mysql -e "DROP DATABASE \`$DB_TO_DROP\`;"
+                echo -e "${txtgrn}Baza $DB_TO_DROP obrisana.${txtnc}"
+            else
+                echo -e "${txtred}Baza $DB_TO_DROP nije pronađena.${txtnc}"
+            fi
+        fi
+        if [[ -n "$USER_TO_DROP" ]]; then
+            FOUND_USER=$(mysql -N -e "SELECT user FROM mysql.user WHERE user='$USER_TO_DROP';")
+            if [[ -n "$FOUND_USER" ]]; then
+                mysql -e "DROP USER IF EXISTS '$USER_TO_DROP'@'localhost';"
+                echo -e "${txtgrn}Korisnik $USER_TO_DROP obrisan.${txtnc}"
+            else
+                echo -e "${txtred}Korisnik $USER_TO_DROP nije pronađen.${txtnc}"
+            fi
+        fi
+    else
+        echo "Brisanje preskočeno."
+    fi
 fi
 
-echo "${bldblu}$title${txtrst}"
+echo -e "\n${txtblu}Sada kreiramo NOVOG korisnika i bazu za YetiForce.${txtnc}"
+read -p "Unesite željeni naziv baze: " NEWDB
+read -p "Unesite korisničko ime za bazu: " NEWUSER
 
-# Provjera MySQL konekcije
-if ! mysqladmin ping -u root --silent; then
-    echo "${bldred}$no_mysql${txtrst}"
-    exit 1
-fi
+# Unos i validacija lozinke
+while true; do
+    read -s -p "Unesite lozinku (dozvoljeni karakteri: slova, brojevi, !@#%^&*()-_=+): " NEWPASS
+    echo
+    if validate_password "$NEWPASS"; then
+        break
+    else
+        echo -e "${txtred}Lozinka NE SMIJE sadržavati $, ', \", ili \\ ! Pokušajte ponovo.${txtnc}"
+    fi
+done
 
-# Brisanje postojeće baze i korisnika
-DEFAULT_DB="yetiforce"
-DEFAULT_USER="yeti"
+mysql -e "CREATE DATABASE IF NOT EXISTS \`$NEWDB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -e "CREATE USER IF NOT EXISTS '$NEWUSER'@'localhost' IDENTIFIED BY '$NEWPASS';"
+mysql -e "GRANT ALL PRIVILEGES ON \`$NEWDB\`.* TO '$NEWUSER'@'localhost';"
+mysql -e "FLUSH PRIVILEGES;"
 
-read -p "$confirm_remove" CONFIRM
-if [[ "$CONFIRM" =~ ^(da|yes)$ ]]; then
-    mysqldump -u root ${DEFAULT_DB} > "${DEFAULT_DB}_backup_$(date +%F_%T).sql"
-    mysql -u root -e "DROP DATABASE IF EXISTS ${DEFAULT_DB};"
-    mysql -u root -e "DROP USER IF EXISTS '${DEFAULT_USER}'@'localhost';"
-    echo "${bldgrn}$removed_success${txtrst}"
-fi
-
-# Unos podataka
-read -p "$enter_db" NEW_DB
-if [[ ! "$NEW_DB" =~ ^[a-zA-Z0-9_]+$ ]]; then
-  echo "${bldred}$invalid_db${txtrst}"
-  exit 1
-fi
-
-read -p "$enter_user" NEW_USER
-read -s -p "$enter_pass" NEW_PASS
-echo
-read -s -p "$confirm_pass" CONFIRM_PASS
-echo
-if [[ "$NEW_PASS" != "$CONFIRM_PASS" ]]; then
-    echo "${bldred}$mismatch${txtrst}"
-    exit 1
-fi
-
-# Kreiranje baze i korisnika
-mysql -u root -e "CREATE DATABASE \`${NEW_DB}\`;"
-mysql -u root -e "CREATE USER '${NEW_USER}'@'localhost' IDENTIFIED BY '${NEW_PASS}';"
-mysql -u root -e "GRANT ALL PRIVILEGES ON \`${NEW_DB}\`.* TO '${NEW_USER}'@'localhost' WITH GRANT OPTION;"
-mysql -u root -e "FLUSH PRIVILEGES;"
-mysql -u root -e "ALTER DATABASE \`${NEW_DB}\` CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
-
-printf "${bldgrn}$success${txtrst}\n" "$NEW_DB" "$NEW_USER"
+echo -e "${txtgrn}Baza '$NEWDB' i korisnik '$NEWUSER' su uspješno kreirani!${txtnc}"
