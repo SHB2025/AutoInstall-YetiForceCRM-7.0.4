@@ -132,8 +132,8 @@ grep -q "^\[mysqld\]" "$MYSQL_CNF" || echo "[mysqld]" >> "$MYSQL_CNF"
 
 sed -i '/^\[mysqld\]/a \
 sql_mode= ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION\
-\ncharacter-set-server = utf8\
-\ncollation-server = utf8_unicode_ci\
+\ncharacter-set-server = utf8mb4\
+\ncollation-server = utf8mb4_unicode_ci\
 \ndefault-storage-engine = InnoDB\
 \ninnodb_file_per_table = 1\
 \nmax_allowed_packet = 128M\
@@ -158,7 +158,7 @@ mysql -u root -e "CREATE USER 'yeti'@'localhost' IDENTIFIED BY 'yeti';"
 mysql -u root -e "GRANT ALL PRIVILEGES ON yetiforce.* TO 'yeti'@'localhost' WITH GRANT OPTION;"
 mysql -u root -e "CREATE DATABASE yetiforce;"
 mysql -u root -e "FLUSH PRIVILEGES"
-mysql -u root -e "ALTER DATABASE yetiforce CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+mysql -u root -e "ALTER DATABASE yetiforce CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 clear
 echoyellow "INSTALLING PHP AND APACHE / INSTALACIJA PHP-a I APACHE-a"
