@@ -13,6 +13,7 @@ Ovaj repozitorij sadrži dvije skripte koje omogućavaju **potpunu i sigurnu ins
     sudo wget https://raw.githubusercontent.com/SHB2025/AutoInstall-YetiForceCRM-7.0.4/refs/heads/main/yetiforce_db_setup.sh
 ---
 # Pokretanje YetiForce CRM 7.0.4 instalacijske skripte
+# NAPOMENA: Za instalaciju uvijek koristite ENGLESKI jezik, a nakon izvršene instalacije odaberite i instalirajte željeni jezik za YetiForce.
     sudo chmod +x AutoInstall-YetiForceCRM.sh
     sudo ./AutoInstall-YetiForceCRM.sh
 ---
