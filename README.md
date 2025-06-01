@@ -1,23 +1,26 @@
 # AutoInstall-YetiForceCRM-7.0.4
-Skripta za automatsku instalaciju YetiForce CRM 7.0.4
+Skripta za automatsku instalaciju YetiForce CRM 7.0.4 / YetiForce CRM 7.0.4 Auto Install Script
 
 # 🧩 YetiForce CRM 7.0.4 Automatizirana Instalacija
 
-Ovaj repozitorij sadrži dvije skripte koje omogućavaju **potpunu i sigurnu instalaciju** YetiForce CRM 7.0.4 sistema na **Ubuntu Server 22.04 ili 24.04**, uz mogućnost izbora jezika i konfiguracije baze podataka po želji korisnika.
-
+Ovaj repozitorij sadrži dvije skripte koje omogućavaju **potpunu i sigurnu instalaciju** YetiForce CRM 7.0.4 sistema na **Ubuntu Server 22.04 ili 24.04**.
+This repository contains two scripts that enable a **complete and secure installation** of the YetiForce CRM 7.0.4 system on **Ubuntu Server 22.04 or 24.04**.
 ---
 
-## 📥 Preuzimanje
+## 📥 Preuzimanje / Download
 
     sudo wget https://raw.githubusercontent.com/SHB2025/AutoInstall-YetiForceCRM-7.0.4/refs/heads/main/AutoInstall-YetiForceCRM.sh
     sudo wget https://raw.githubusercontent.com/SHB2025/AutoInstall-YetiForceCRM-7.0.4/refs/heads/main/yetiforce_db_setup.sh
 ---
 # Pokretanje YetiForce CRM 7.0.4 instalacijske skripte
 # NAPOMENA: Za instalaciju uvijek koristite ENGLESKI jezik, a nakon izvršene instalacije odaberite i instalirajte željeni jezik za YetiForce.
+# Running the YetiForce CRM 7.0.4 installation script
+# NOTE: Always use the ENGLISH language for installation, and after installation, select and install the desired language for YetiForce.
     sudo chmod +x AutoInstall-YetiForceCRM.sh
     sudo ./AutoInstall-YetiForceCRM.sh
 ---
 # Pokretanje YetiForce SQL Setup skripte
+# Running the YetiForce SQL Setup script
     sudo chmod +x yetiforce_db_setup.sh
     sudo ./yetiforce_db_setup.sh
 
