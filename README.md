@@ -91,9 +91,9 @@ Should be run **after the first script** and **before launching the web installe
 
 ---
 
-## 📺 YouTube tutorijal (uskoro...)
+## 📺 YouTube tutorijal
 
-Detaljna video uputstva dostupna uskoro na kanalu [SolutionHub Bosnia](https://www.youtube.com/@SolutionHubBosnia)
+Detaljna video uputstva dostupna na kanalu [SolutionHub Bosnia](https://www.youtube.com/@SolutionHubBosnia)
 
 ---
 
